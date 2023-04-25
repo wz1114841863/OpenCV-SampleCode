@@ -1,4 +1,5 @@
 #include <opencv2/core/core.hpp>
+#include <opencv2/imgproc.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <vector>
 #include <iostream>
@@ -28,7 +29,7 @@ void example3_1_8() {
 
     try {
         cv::imwrite("../Images/alpha.png", mat, compression_params);
-    }catch (std::runtime_error &ex){
+    }catch (std::runtime_error &){
         std::cout << "error. " << std::endl;
         return ;
     }
@@ -70,32 +71,47 @@ void example3_1_9() {
 
 // example: mouse event
 #define MOUSE_EVENT_WINDOW_NAME "mouse_event"
+Rect g_rectangle;
+bool g_bDrawingBox = false;
+RNG g_rng(12345);
+
+void drawRectangle(cv::Mat &img, cv::Rect box) {
+    rectangle(img, box.tl(), box.br(), Scalar(g_rng.uniform(0, 255), g_rng.uniform(0, 255),
+                                              g_rng.uniform(0, 255)));
+}
 
 void onMouseHandle(int event, int x, int y, int flags, void *param) {
     Mat &img = *(cv::Mat *)param;
     switch(event) {
         case EVENT_MOUSEMOVE: {
-            if ()
+            if (g_bDrawingBox) {
+                g_rectangle.width = x - g_rectangle.x;
+                g_rectangle.height = y - g_rectangle.y;
+            }
             break;
         }
         case EVENT_LBUTTONDOWN: {
-
-            break;
+            g_bDrawingBox = true;
+            g_rectangle = Rect(x, y, 0, 0);
         }
+            break;
         case EVENT_LBUTTONUP: {
+            g_bDrawingBox = false;
+            if (g_rectangle.width < 0) {
+                g_rectangle.x += g_rectangle.width;
+                g_rectangle.width *= -1;
+            }
 
-            break;
+            if (g_rectangle.height < 0) {
+                g_rectangle.y += g_rectangle.height;
+                g_rectangle.height *= -1;
+            }
+
+            drawRectangle(img, g_rectangle);
         }
+        break;
     }
 }
-
-void drawRectangle(cv::Mat &img, cv::Rect box);
-void showHelpText();
-
-Rect g_rectangle;
-bool g_bDrawingBox = false;
-RNG g_rng(12345);
-
 
 void example3_1_10() {
     // set param
@@ -105,7 +121,7 @@ void example3_1_10() {
     srcImg = Scalar::all(0);
 
     // create window and set callback
-    namedWindow(MOUSE_EVENT_WINDOW_NAME);
+    namedWindow(MOUSE_EVENT_WINDOW_NAME, WINDOW_NORMAL);
     setMouseCallback(MOUSE_EVENT_WINDOW_NAME, onMouseHandle, (void *)&srcImg);
 
     while (true) {
@@ -114,7 +130,7 @@ void example3_1_10() {
             drawRectangle(tmpImg, g_rectangle);
         }
         imshow(MOUSE_EVENT_WINDOW_NAME, tmpImg);
-        if (waitKey(0) == 27) {
+        if (waitKey(10) == 27) {
             break;
         }
     }

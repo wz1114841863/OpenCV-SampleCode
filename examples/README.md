@@ -1,7 +1,10 @@
 ##说明
 ```
 1. Mat
-
+由两个数据部分组成，矩阵头和一个指向存储所有像素值的矩阵
+引用计数，拷贝构造和移动构造仅增加引用计数，每个对象仅由矩阵头信息不同，指向矩阵的指针相同
+想要完全拷贝应该使用clone \ copyTo
+同时支持使用不同类型的输出风格打印数组
 2. InputArray
 
 3. vecXX
@@ -19,4 +22,8 @@ Vec4b：表示每一个Vec4b对象中,可以存储4个字符型数据,可以用�
 TrackbarCallback onChange=0, void *userdata=0);
 value: 滑块的初始位置， count：滑块能到达的最大位置
 TrackbarCallback: 回调函数， void XXX(int , void *); userdata: 用户传给回参函数的数据
+
+7. operationsOnArrays:LUT()<lut>
+用于批量进行图像元素查找、扫描与操作图像
+
 ```
